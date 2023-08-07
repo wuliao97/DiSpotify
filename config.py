@@ -10,8 +10,13 @@ from os.path import (
 
 """PATHS"""
 ROOT = abspath(dirname(__file__))
+RESOURCES = join(ROOT, "resources")
+
+STARRAIL  = join(RESOURCES, "starrail")
+SFONTS = join(STARRAIL, "fonts")
 
 CONFIG = join(ROOT, "config", ".env")
+
 COG_FOLDER = join(ROOT, "cogs")
 
 """BOT"""
@@ -26,3 +31,4 @@ spotify_black = 0x191414
 """SPOTIFY"""
 spotify_client = os.environ["client_id"]
 spotify_secret = os.environ["client_secret"]
+

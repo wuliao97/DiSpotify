@@ -15,7 +15,7 @@ class Commands(commands.Cog):
     @commands.slash_command(name="about")
     async def about_this_bot(self, inter: discord.Interaction):
         e = discord.Embed(description="For all of Spotify Lover and my friends!")
-        e.add_field(name="source", value=quote(toURL("GITHUB", "")))
+        e.add_field(name="source", value=quote(toURL("GITHUB", "https://github.com/wuliao97/DiSpotify")))
 
         await inter.response.send_message(embeds=[e])
         

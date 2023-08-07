@@ -1,4 +1,5 @@
 import discord
+from discord.ui.item import Item
 import spotipy
 from dateutil import parser
 import urllib
@@ -9,7 +10,12 @@ from utils.functions import toURL
 
 
 class Spotify:
-    def __init__(self, user: discord.Member, query: str = None):
+    def __init__(
+            self, 
+            user: discord.Member = None, 
+            track_id: str = None , 
+            query: str = None
+    ):
         self.user = user
         self.spotify = spotipy.Spotify(
             auth_manager=SpotifyClientCredentials(client_id=spotify_client, client_secret=spotify_secret))
@@ -18,13 +24,7 @@ class Spotify:
         self.urls = []
         self.query = query
         self.base_search_url = "https://open.spotify.com/search/"
-
-    class Details(discord.ui.View):
-        def __init__(self, track_id, timeout=180):
-            super().__init__(timeout=timeout, disable_on_timeout=False)
-        
-        
-
+        self.track_url = "https://open.spotify.com/track/"
 
 
     def extract(self):
@@ -77,3 +77,50 @@ class Spotify:
 
     def search_url(self):
         return self.base_search_url + urllib.parser.quote(str(self.query))
+    
+
+
+    
+class Details(discord.ui.View):
+    def __init__(self, track_id, timeout=180):
+        super().__init__(timeout=timeout, disable_on_timeout=False)
+        self.spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=spotify_client, client_secret=spotify_secret))
+        
+        
+        self.track = self.spotify.track(track_id)
+
+        self.album = self.spotify.album()
+        self.artists = self.spotify.artists()
+    
+
+
+
+
+class SpotifyPageView(discord.ui.View):
+    def __init__(self, embeds:list[discord.Embed], limit:int, timeout: float | None = 180, disable_on_timeout: bool = False):
+        super().__init__(timeout=timeout, disable_on_timeout=disable_on_timeout)
+        self.embeds = embeds
+        self.limit = limit - 1
+        self.current = 0
+    
+    @discord.ui.button(label="<<")
+    async def rewind_button(self, button, inter:discord.Interaction):
+        self.current = 0
+        await inter.response.edit_message(embeds=[self.embeds[self.current]])
+
+    @discord.ui.button(label="<")
+    async def left_arrow_button(self, button, inter:discord.Interaction):
+        self.current = current if (current:=self.current - 1) > 0 else self.current
+        await inter.response.edit_message(embeds=[self.embeds[self.current]])
+
+    @discord.ui.button(label=">")
+    async def right_arrow_button(self, button, inter:discord.Interaction):
+        self.current = current if ((self.limit) >= (current:=self.current + 1)) else self.current
+        await inter.response.edit_message(embeds=[self.embeds[self.current]])
+
+    @discord.ui.button(label=">>")
+    async def fast_forward_button(self, button, inter:discord.Interaction):
+        self.current = self.limit
+        await inter.response.edit_message(embeds=[self.embeds[self.current]])
+
+    
